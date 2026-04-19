@@ -6,6 +6,7 @@ const addmissionform = require('./routes/addmissionform');
 const admissions = require('./routes/admissions');
 const Academics = require('./routes/academics');
 const Learneraccount = require('./routes/leaneraccount')
+const Billsquote=require('./routes/billsquote')
 
 
 const app = express();
@@ -19,6 +20,7 @@ app.use('/addmissionform', addmissionform)
 app.use('/admissions', admissions)
 app.use('/academics', Academics)
 app.use('/leaneraccount',Learneraccount)
+app.use('/billsquote',Billsquote)
 
 
 module.exports = app;
