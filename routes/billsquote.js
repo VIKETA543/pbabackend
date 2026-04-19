@@ -137,7 +137,7 @@ router.post('/savebillsquote', (req, res) => {
                                             return res.status(200).json({ success: 'Account successfuly updated' })
                                         } else {
                                             connection.release()
-                                            return res.status(200).json({ success: 'Something went wrong. Bill could not be submitted' })
+                                            return res.status(200).json({ message: 'Something went wrong. Bill could not be submitted' })
                                         }
 
                                     }
@@ -179,7 +179,7 @@ router.post('/dropBill', (req, res) => {
                         return res.status(200).json({ success: 'Bill successfuly deleted' })
                     } else {
                         connection.release()
-                        return res.status(200).json({ success: 'Something went wrong. Bill could not be deleted' })
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
                     }
 
                 }
@@ -297,7 +297,7 @@ router.post('/dropCanteenBill', (req, res) => {
                         return res.status(200).json({ success: 'Bill successfuly deleted' })
                     } else {
                         connection.release()
-                        return res.status(200).json({ success: 'Something went wrong. Bill could not be deleted' })
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
                     }
 
                 }
@@ -356,7 +356,7 @@ router.post('/submitCanteenBiil', (req, res) => {
                                             return res.status(200).json({ success: 'Account successfuly updated' })
                                         } else {
                                             connection.release()
-                                            return res.status(200).json({ success: 'Something went wrong. Bill could not be submitted' })
+                                            return res.status(200).json({ message: 'Something went wrong. Bill could not be submitted' })
                                         }
 
                                     }
@@ -559,7 +559,7 @@ router.post('/dropBussBill', (req, res) => {
                         return res.status(200).json({ success: 'Bill successfuly deleted' })
                     } else {
                         connection.release()
-                        return res.status(200).json({ success: 'Something went wrong. Bill could not be deleted' })
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
                     }
 
                 }
@@ -618,7 +618,7 @@ router.post('/submitBussBiil', (req, res) => {
                                             return res.status(200).json({ success: 'Account successfuly updated' })
                                         } else {
                                             connection.release()
-                                            return res.status(200).json({ success: 'Something went wrong. Bill could not be submitted' })
+                                            return res.status(200).json({ message: 'Something went wrong. Bill could not be submitted' })
                                         }
 
                                     }
@@ -734,7 +734,7 @@ router.post('/dropptaBill', (req, res) => {
                         return res.status(200).json({ success: 'Bill successfuly deleted' })
                     } else {
                         connection.release()
-                        return res.status(200).json({ success: 'Something went wrong. Bill could not be deleted' })
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
                     }
 
                 }
@@ -793,7 +793,7 @@ router.post('/submitptaBiil', (req, res) => {
                                             return res.status(200).json({ success: 'Account successfuly updated' })
                                         } else {
                                             connection.release()
-                                            return res.status(200).json({ success: 'Something went wrong. Bill could not be submitted' })
+                                            return res.status(200).json({ message: 'Something went wrong. Bill could not be submitted' })
                                         }
 
                                     }
@@ -914,7 +914,7 @@ router.post('/dropsepciallevy', (req, res) => {
                         return res.status(200).json({ success: 'Bill successfuly deleted' })
                     } else {
                         connection.release()
-                        return res.status(200).json({ success: 'Something went wrong. Bill could not be deleted' })
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
                     }
 
                 }
@@ -973,7 +973,7 @@ router.post('/submitspeciallevy', (req, res) => {
                                             return res.status(200).json({ success: 'Account successfuly updated' })
                                         } else {
                                             connection.release()
-                                            return res.status(200).json({ success: 'Something went wrong. Bill could not be submitted' })
+                                            return res.status(200).json({ message: 'Something went wrong. Bill could not be submitted' })
                                         }
 
                                     }
@@ -986,4 +986,267 @@ router.post('/submitspeciallevy', (req, res) => {
         }
     })
 })
+
+
+
+
+///uniforms code
+
+
+router.post('/newuniform', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+    pool.getConnection((err, connection) => {
+console.log(data)
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT uniformname FROM Uniforms WHERE uniformname=?'
+            connection.query(query, [data.uniformName], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        return res.status(201).json({ message: 'Destination already registered' })
+                    } else {
+                        query = 'INSERT INTO Uniforms(uniformid,uniformname, uniformdetails,date)VALUES(?,?,?,?)'
+                        connection.query(query, [data.uniformID, data.uniformName, data.uniformDetails, data.date], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                connection.release()
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.affectedRows > 0) {
+                                    return res.status(201).json({ success: 'Destination successfuly created' })
+                                } else {
+                                    return res.status(201).json({ message: 'An error has occured. Try again' })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+
+        }
+    })
+})
+
+
+router.get('/loaduniforms', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+    pool.getConnection((err, connection) => {
+
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT uniformid,uniformname, uniformdetails,date FROM Uniforms'
+            connection.query(query, (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        connection.release()
+                        return res.status(200).json({ data: results })
+                    } else {
+                        res.status(201).json({ message: 'No Destinations Registered' })
+                    }
+                }
+            })
+
+        }
+    })
+})
+
+
+
+
+router.post('/submituniformbill', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+              console.log(data)
+    pool.getConnection((err, connection) => {
+
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT sessionID,Tid,Department,GradeID FROM uniformbilling WHERE sessionID=? AND Tid=? AND Department=? AND GradeID=?'
+            connection.query(query, [data.academicyear, data.term, data.department, data.grade], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+
+                    if (results.length > 0) {
+              
+                        connection.release()
+                        return res.status(201).json({ message: 'Bill for this term has already been submitted' })
+                    } else {
+                        query = 'UPDATE uniformbilling SET isCurrentbill=? WHERE isCurrentbill=?'
+                        connection.query(query, [false, true], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                connection.release()
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                query = 'INSERT INTO uniformbilling (uniformbillnumber,sessionID,Tid,currentBill,dateposted,isCurrentbill,Department,GradeID,uniformid,uniformdetails)VALUES(?,?,?,?,?,?,?,?,?,?)'
+                                connection.query(query, [data.billID, data.academicyear, data.term, data.currentBill, data.datePosted, data.isCurrentBill, data.department, data.grade,data.uniformid,data.uniformdetails], (error, results) => {
+                                    if (error) {
+                                        console.log(error)
+                                        connection.release()
+                                        return res.status(201).json({ message: error.sqlMessage })
+                                    } else {
+                                        if (results.affectedRows > 0) {
+                                            connection.release()
+                                            return res.status(200).json({ success: 'Account successfuly updated' })
+                                        } else {
+                                            connection.release()
+                                            return res.status(200).json({ message: 'Something went wrong. Bill could not be submitted' })
+                                        }
+
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+// 
+
+router.get('/uniformsHistory', (req, res) => {
+
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            console.log('loading uniforms')
+             query = 'SELECT uniformbilling.sn,uniformbilling.uniformbillnumber,uniformbilling.sessionID,uniformbilling.uniformdetails,academicsession.ac_session,uniformbilling.Tid,academicterms.TermlyObject, uniformbilling.currentBill,uniformbilling.dateposted,uniformbilling.isCurrentbill,uniformbilling.Department,academicdepartment.DeptName,uniformbilling.GradeID, academicgrades.GradeDescription,Uniforms.uniformname FROM uniformbilling LEFT JOIN academicsession ON  uniformbilling.sessionID=academicsession.sessionID LEFT JOIN academicterms ON  uniformbilling.Tid=academicterms.Tid LEFT JOIN academicdepartment ON uniformbilling.Department=academicdepartment.DeptId LEFT JOIN academicgrades ON  uniformbilling.GradeID=academicgrades.SerialNumber LEFT JOIN uniforms ON uniformbilling.uniformid=uniforms.uniformid'
+            connection.query(query, (error, results) => {
+                if (error) {
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+
+router.get('/uniformscurrentbill', (req, res) => {
+
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT uniformbilling.sn,uniformbilling.uniformbillnumber,uniformbilling.sessionID,uniformbilling.uniformdetails,academicsession.ac_session,uniformbilling.Tid,academicterms.TermlyObject, uniformbilling.currentBill,uniformbilling.dateposted,uniformbilling.isCurrentbill,uniformbilling.Department,academicdepartment.DeptName,uniformbilling.GradeID, academicgrades.GradeDescription,Uniforms.uniformname FROM uniformbilling LEFT JOIN academicsession ON  uniformbilling.sessionID=academicsession.sessionID LEFT JOIN academicterms ON  uniformbilling.Tid=academicterms.Tid LEFT JOIN academicdepartment ON uniformbilling.Department=academicdepartment.DeptId LEFT JOIN academicgrades ON  uniformbilling.GradeID=academicgrades.SerialNumber LEFT JOIN uniforms ON uniformbilling.uniformid=uniforms.uniformid WHERE uniformbilling.isCurrentbill=?'
+            connection.query(query,[true], (error, results) => {
+                if (error) {
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+router.post('/dropuniformBill', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+    console.log(data)
+    pool.getConnection((err, connection) => {
+        console.log(data)
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM  uniformbilling WHERE uniformbillnumber=? '
+            connection.query(query, [data.billID], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
 module.exports = router
