@@ -1760,4 +1760,223 @@ console.log('Term Data: ',data)
         }
     })
 })
+
+
+// creating bus bill structure 
+
+
+//bus fee preparation information 
+// ====================================================================================================================================================
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+router.post('/load_Current_Bus_bill_schedule', (req, res) => {
+    let data = req.body
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT bussbills.bussbillNumber,bussbills.currentBill,bussbills.isCurrentbill FROM bussbills WHERE bussbills.Tid=?  AND bussbills.isCurrentbill=?  AND bussbills.GradeID=?'
+            connection.query(query, [data.term, true, data.grade], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('c record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+//Prepare arears
+
+router.post('/Load_bus_fee_arears', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT TermlyBalance FROM bus_fee_payment WHERE AdmissionNumber=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        return res.status(200).json({ data: results })
+                    } else {
+                
+                        return res.json({ Norecord: data })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+// submitcurrentbill
+
+router.post('/submit_current_fee_schedule', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' submitting data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,dailyBill,weeklyBill,MonthlyBill,totalTermBill,TotalCanteenFee,dateposted,isCurrentbill,Department' +
+                ' FROM bus_fee_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=? AND Academicgrade=? AND Department=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, data.academicyear, data.term, data.grade, data.Department, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('billed for this term')
+                        return res.status(200).json({ message: 'School fee has alreay bee prepared for this learner' })
+                    } else {
+                        query = 'SELECT  * FROM bus_fee_schedule WHERE billNumber=?'
+                        connection.query(query, [data.billID], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.length > 0) {
+                                    return res.status(200).json({ message: 'Duplicate bill Number. trye again' })
+                                } else {
+                                    console.log('insertion error')
+                                    query = 'INSERT INTO bus_fee_schedule (billNumber, AdmissionNumber, sessionID, Tid, Academicgrade,arrears, dailyBill, weeklyBill, MonthlyBill, totalTermBill,TotalCanteenFee, dateposted, isCurrentbill, Department)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                                    connection.query(query, [data.billID, data.AdmissionNumber, data.academicyear, data.term, data.grade, data.arrears, data.currentFee,data.weeklyAmount,data.monthlyAmount,data.termlyAmount, data.amountDue, data.dateDeposit, data.isCurrentBill, data.Department], (error, results) => {
+                                        if (error) {
+                                            console.log(error)
+                                            return res.status(201).json({ message: error.sqlMessage })
+                                        } else {
+                                            if (results.affectedRows > 0) {
+                                                return res.status(200).json({ success: 'Bill details successfully added' })
+                                            } else {
+                                                console.log('unknown error')
+                                                return res.status(201).json({ message: 'Unknown error has occured. Try again' })
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.post('/load_bus_fee_history_schedule', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,dailyBill,weeklyBill,MonthlyBill,totalTermBill,TotalCanteenFee,dateposted,isCurrentbill,Department' +
+                ' FROM bus_fee_schedule WHERE AdmissionNumber=?'
+            connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                    
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+router.post('/drop_bus_fee_schedule', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM bus_fee_schedule WHERE AdmissionNumber=?'
+              connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
 module.exports = router
