@@ -962,7 +962,7 @@ router.post('/submitspeciallevy', (req, res) => {
                                 return res.status(201).json({ message: error.sqlMessage })
                             } else {
                                 query = 'INSERT INTO speciallevy (lavynumber,sessionID,Tid,currentBill,dateposted,isCurrentbill,Department,GradeID,levydetails)VALUES(?,?,?,?,?,?,?,?,?)'
-                                connection.query(query, [data.billID, data.academicyear, data.term, data.currentBill, data.datePosted, data.isCurrentBill, data.department, data.grade,data.levydetails], (error, results) => {
+                                connection.query(query, [data.billID, data.academicyear, data.term, data.currentBill, data.datePosted, data.isCurrentBill, data.department, data.grade, data.levydetails], (error, results) => {
                                     if (error) {
                                         console.log(error)
                                         connection.release()
@@ -999,7 +999,7 @@ router.post('/newuniform', (req, res) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
     let data = req.body
     pool.getConnection((err, connection) => {
-console.log(data)
+        console.log(data)
         if (err) {
             console.log(err)
             connection.release()
@@ -1080,7 +1080,7 @@ router.post('/submituniformbill', (req, res) => {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
     let data = req.body
-              console.log(data)
+    console.log(data)
     pool.getConnection((err, connection) => {
 
         if (err) {
@@ -1097,7 +1097,7 @@ router.post('/submituniformbill', (req, res) => {
                 } else {
 
                     if (results.length > 0) {
-              
+
                         connection.release()
                         return res.status(201).json({ message: 'Bill for this term has already been submitted' })
                     } else {
@@ -1109,7 +1109,7 @@ router.post('/submituniformbill', (req, res) => {
                                 return res.status(201).json({ message: error.sqlMessage })
                             } else {
                                 query = 'INSERT INTO uniformbilling (uniformbillnumber,sessionID,Tid,currentBill,dateposted,isCurrentbill,Department,GradeID,uniformid,uniformdetails)VALUES(?,?,?,?,?,?,?,?,?,?)'
-                                connection.query(query, [data.billID, data.academicyear, data.term, data.currentBill, data.datePosted, data.isCurrentBill, data.department, data.grade,data.uniformid,data.uniformdetails], (error, results) => {
+                                connection.query(query, [data.billID, data.academicyear, data.term, data.currentBill, data.datePosted, data.isCurrentBill, data.department, data.grade, data.uniformid, data.uniformdetails], (error, results) => {
                                     if (error) {
                                         console.log(error)
                                         connection.release()
@@ -1153,7 +1153,7 @@ router.get('/uniformsHistory', (req, res) => {
             return;
         } else {
             console.log('loading uniforms')
-             query = 'SELECT uniformbilling.sn,uniformbilling.uniformbillnumber,uniformbilling.sessionID,uniformbilling.uniformdetails,academicsession.ac_session,uniformbilling.Tid,academicterms.TermlyObject, uniformbilling.currentBill,uniformbilling.dateposted,uniformbilling.isCurrentbill,uniformbilling.Department,academicdepartment.DeptName,uniformbilling.GradeID, academicgrades.GradeDescription,Uniforms.uniformname FROM uniformbilling LEFT JOIN academicsession ON  uniformbilling.sessionID=academicsession.sessionID LEFT JOIN academicterms ON  uniformbilling.Tid=academicterms.Tid LEFT JOIN academicdepartment ON uniformbilling.Department=academicdepartment.DeptId LEFT JOIN academicgrades ON  uniformbilling.GradeID=academicgrades.SerialNumber LEFT JOIN uniforms ON uniformbilling.uniformid=uniforms.uniformid'
+            query = 'SELECT uniformbilling.sn,uniformbilling.uniformbillnumber,uniformbilling.sessionID,uniformbilling.uniformdetails,academicsession.ac_session,uniformbilling.Tid,academicterms.TermlyObject, uniformbilling.currentBill,uniformbilling.dateposted,uniformbilling.isCurrentbill,uniformbilling.Department,academicdepartment.DeptName,uniformbilling.GradeID, academicgrades.GradeDescription,Uniforms.uniformname FROM uniformbilling LEFT JOIN academicsession ON  uniformbilling.sessionID=academicsession.sessionID LEFT JOIN academicterms ON  uniformbilling.Tid=academicterms.Tid LEFT JOIN academicdepartment ON uniformbilling.Department=academicdepartment.DeptId LEFT JOIN academicgrades ON  uniformbilling.GradeID=academicgrades.SerialNumber LEFT JOIN uniforms ON uniformbilling.uniformid=uniforms.uniformid'
             connection.query(query, (error, results) => {
                 if (error) {
                     return res.status(201).json({ message: error.sqlMessage })
@@ -1191,7 +1191,7 @@ router.get('/uniformscurrentbill', (req, res) => {
             return;
         } else {
             query = 'SELECT uniformbilling.sn,uniformbilling.uniformbillnumber,uniformbilling.sessionID,uniformbilling.uniformdetails,academicsession.ac_session,uniformbilling.Tid,academicterms.TermlyObject, uniformbilling.currentBill,uniformbilling.dateposted,uniformbilling.isCurrentbill,uniformbilling.Department,academicdepartment.DeptName,uniformbilling.GradeID, academicgrades.GradeDescription,Uniforms.uniformname FROM uniformbilling LEFT JOIN academicsession ON  uniformbilling.sessionID=academicsession.sessionID LEFT JOIN academicterms ON  uniformbilling.Tid=academicterms.Tid LEFT JOIN academicdepartment ON uniformbilling.Department=academicdepartment.DeptId LEFT JOIN academicgrades ON  uniformbilling.GradeID=academicgrades.SerialNumber LEFT JOIN uniforms ON uniformbilling.uniformid=uniforms.uniformid WHERE uniformbilling.isCurrentbill=?'
-            connection.query(query,[true], (error, results) => {
+            connection.query(query, [true], (error, results) => {
                 if (error) {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
@@ -1217,9 +1217,8 @@ router.post('/dropuniformBill', (req, res) => {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
     let data = req.body
-    console.log(data)
+
     pool.getConnection((err, connection) => {
-        console.log(data)
         if (err) {
             console.log(err)
             console.error('Error getting connection from pool:', err);
@@ -1249,4 +1248,516 @@ router.post('/dropuniformBill', (req, res) => {
 })
 
 
+
+// Preparing bills for learners
+// 
+
+
+router.get('/termdetails', (req, res) => {
+
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT schoolfeebills.billNumber,schoolfeebills.sessionID,schoolfeebills.Tid,schoolfeebills.currentBill,schoolfeebills.isCurrentbill,schoolfeebills.Department, academicsession.ac_session, academicterms.TermlyObject, academicdepartment.DeptName FROM schoolfeebills LEFT JOIN academicsession ON schoolfeebills.sessionID=academicsession.sessionID LEFT JOIN academicterms ON schoolfeebills.Tid=academicterms.Tid LEFT JOIN academicdepartment ON schoolfeebills.Department=academicdepartment.DeptId WHERE isCurrentbill=?'
+            connection.query(query, [true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+
+
+router.post('/loadCurrentFee', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT schoolfeebills.billNumber,schoolfeebills.currentBill,schoolfeebills.isCurrentbill FROM schoolfeebills WHERE schoolfeebills.Tid=?  AND schoolfeebills.isCurrentbill=?  AND GradeID=?'
+            connection.query(query, [data.term, true, data.grade], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+// 
+// loadarrears
+router.post('/loadarrear', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT currentBalance FROM school_fee_payments WHERE AdmissionNumber=? AND isCurrentbillStatus=?'
+            connection.query(query, [data.AdmissionNumber, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('no records')
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+// submitcurrentbill
+
+router.post('/submitcurrentbill', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+             console.log('validation error')
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,currentBill,totalBill,dateposted,isCurrentbill,Department' +
+                ' FROM school_fee_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=? AND Academicgrade=? AND Department=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, data.academicyear, data.term, data.grade, data.Department, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('billed for this term')
+                        return res.status(200).json({ message: 'School fee has alreay bee prepared for this learner' })
+                    } else {
+                        query = 'SELECT  * FROM school_fee_schedule WHERE billNumber=?'
+                        connection.query(query, [data.billID], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.length > 0) {
+                                    console.log('billed for this term')
+                                    return res.status(200).json({ message: 'Duplicate bill Number. trye again' })
+                                } else {
+                                    console.log('insertion error')
+                                    query = 'INSERT INTO school_fee_schedule (billNumber,AdmissionNumber,sessionID,Tid, Academicgrade, arrears, currentBill, totalBill, dateposted, isCurrentbill,Department)VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+                                    connection.query(query, [data.billID, data.AdmissionNumber, data.academicyear, data.term, data.grade, data.arrears, data.currentFee, data.amountDue, data.dateDeposit, data.isCurrentBill, data.Department], (error, results) => {
+                                        if (error) {
+                                            console.log(error)
+                                            return res.status(201).json({ message: error.sqlMessage })
+                                        } else {
+                                            if (results.affectedRows > 0) {
+                                                return res.status(200).json({ success: 'Bill details successfully added' })
+                                            } else {
+                                                console.log('unknown error')
+                                                return res.status(201).json({ message: 'Unknown error has occured. Try again' })
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.post('/leanerFeeHistory', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,currentBill,totalBill,dateposted,isCurrentbill,Department' +
+                ' FROM school_fee_schedule WHERE AdmissionNumber=?'
+            connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                    
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+router.post('/dropLearnerbill', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM school_fee_schedule WHERE AdmissionNumber=?'
+              connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+
+
+
+
+
+//Canteen fee preparation information 
+// ====================================================================================================================================================
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+router.post('/loadCurrentCanteenbill_schedule', (req, res) => {
+    let data = req.body
+console.log('data to cbill',data)
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT canteenbills.cbillNumber,canteenbills.currentBill,canteenbills.isCurrentbill FROM canteenbills WHERE canteenbills.Tid=?  AND canteenbills.isCurrentbill=?  AND canteenbills.GradeID=?'
+            connection.query(query, [data.term, true, data.grade], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('cbill found',results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('c record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+//Prepare arears
+
+router.post('/Loadcateen_fee_arears', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT TermlyBalance FROM canteen_fee_payment WHERE AdmissionNumber=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        return res.status(200).json({ data: results })
+                    } else {
+                     let data={
+                        arrearValue:0
+                     }
+                        return res.json({ Norecord: data })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+// submitcurrentbill
+
+router.post('/submitcurrentCanteenfee_schedule', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' submitting data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,dailyBill,weeklyBill,MonthlyBill,totalTermBill,TotalCanteenFee,dateposted,isCurrentbill,Department' +
+                ' FROM canteen_fee_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=? AND Academicgrade=? AND Department=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, data.academicyear, data.term, data.grade, data.Department, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('billed for this term')
+                        return res.status(200).json({ message: 'School fee has alreay bee prepared for this learner' })
+                    } else {
+                        query = 'SELECT  * FROM school_fee_schedule WHERE billNumber=?'
+                        connection.query(query, [data.billID], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.length > 0) {
+                                    return res.status(200).json({ message: 'Duplicate bill Number. trye again' })
+                                } else {
+                                    console.log('insertion error')
+                                    query = 'INSERT INTO canteen_fee_schedule (billNumber, AdmissionNumber, sessionID, Tid, Academicgrade,arrears, dailyBill, weeklyBill, MonthlyBill, totalTermBill,TotalCanteenFee, dateposted, isCurrentbill, Department)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                                    connection.query(query, [data.billID, data.AdmissionNumber, data.academicyear, data.term, data.grade, data.arrears, data.currentFee,data.weeklyAmount,data.monthlyAmount,data.termlyAmount, data.amountDue, data.dateDeposit, data.isCurrentBill, data.Department], (error, results) => {
+                                        if (error) {
+                                            console.log(error)
+                                            return res.status(201).json({ message: error.sqlMessage })
+                                        } else {
+                                            if (results.affectedRows > 0) {
+                                                return res.status(200).json({ success: 'Bill details successfully added' })
+                                            } else {
+                                                console.log('unknown error')
+                                                return res.status(201).json({ message: 'Unknown error has occured. Try again' })
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.post('/loadcanteenfeehistory_schedule', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,dailyBill,weeklyBill,MonthlyBill,totalTermBill,TotalCanteenFee,dateposted,isCurrentbill,Department' +
+                ' FROM canteen_fee_schedule WHERE AdmissionNumber=?'
+            connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                    
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+router.post('/dropcanteefee_schedule', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM canteen_fee_payment WHERE AdmissionNumber=?'
+              connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
+
+// Selecting number of days in term
+router.post('/loadDaysinTerm', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+console.log('Term Data: ',data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT DaysinTerm FROM termbegins WHERE AcademicYear=? AND OpenedTerm=? AND isCurrent=?'
+              connection.query(query, [data.academicYear,data.term,1], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('Academic Term Begins data', results)
+                        connection.release()
+                        return res.status(200).json({ data:results })
+                    } else {
+                        console.log('begins not found')
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
 module.exports = router

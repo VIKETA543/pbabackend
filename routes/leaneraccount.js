@@ -25,7 +25,7 @@ router.post('/findlearner', (req, res) => {
             console.error('Error getting connection from pool:', err);
             return;
         }
-        query = "SELECT prospectivelearners.AdmissionNumber,prospectivelearners.IndexNumber,applicantbiodata.applicantSurname,applicantbiodata.applicantMiddlename,applicantbiodata.applicantLastname,passportphotos.Image,academicgrades.GradeDescription FROM prospectivelearners LEFT JOIN applicantbiodata ON  prospectivelearners.AdmissionNumber=applicantbiodata.AdmissionNumber LEFT JOIN passportphotos ON prospectivelearners.AdmissionNumber=passportphotos.AdmissionNumber LEFT JOIN academicgrades ON  prospectivelearners.AssignedClass=academicgrades.SerialNumber WHERE prospectivelearners.IndexNumber=? OR prospectivelearners.AdmissionNumber=?"
+        query = "SELECT prospectivelearners.AdmissionNumber,prospectivelearners.IndexNumber,applicantbiodata.applicantSurname,applicantbiodata.applicantMiddlename,applicantbiodata.applicantLastname,passportphotos.Image,academicgrades.SerialNumber,academicgrades.GradeDescription FROM prospectivelearners LEFT JOIN applicantbiodata ON  prospectivelearners.AdmissionNumber=applicantbiodata.AdmissionNumber LEFT JOIN passportphotos ON prospectivelearners.AdmissionNumber=passportphotos.AdmissionNumber LEFT JOIN academicgrades ON  prospectivelearners.AssignedClass=academicgrades.SerialNumber WHERE prospectivelearners.IndexNumber=? OR prospectivelearners.AdmissionNumber=?"
         connection.query(query, [data.learnerID, data.learnerID], (error, results) => {
             if (error) {
                 console.log(error)
@@ -68,7 +68,7 @@ router.get('/academicdata', (req, res) => {
             console.error('Error getting connection from pool:', err);
             return;
         }
-        query = "SELECT academicweekslist.WeekDescription,academicterms.TermlyObject,academicsession.ac_session FROM academicweekslist LEFT JOIN termbegins ON termbegins.WeekOpened=academicweekslist.WeekID LEFT JOIN academicterms ON termbegins.OpenedTerm=academicterms.Tid LEFT JOIN academicsession ON termbegins.AcademicYear=academicsession.sessionID WHERE termbegins.isCurrent=? "
+        query = "SELECT academicweekslist.WeekDescription,academicterms.TermlyObject,academicsession.ac_session, termbegins.OpenedTerm FROM academicweekslist LEFT JOIN termbegins ON termbegins.WeekOpened=academicweekslist.WeekID LEFT JOIN academicterms ON termbegins.OpenedTerm=academicterms.Tid LEFT JOIN academicsession ON termbegins.AcademicYear=academicsession.sessionID WHERE termbegins.isCurrent=? "
         connection.query(query, [true], (error, results) => {
             if (error) {
                 console.log(error)
@@ -270,4 +270,5 @@ router.get('/loadbillhistory', (req, res) => {
 
     })
 })
+
 module.exports = router
