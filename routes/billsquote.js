@@ -34,7 +34,15 @@ router.get('/loadbillhistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                          if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                         res.status(200).json({ message: 'No records available' })
@@ -216,7 +224,15 @@ router.get('/loadcanteenbillhistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                          if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                         res.status(200).json({ message: 'No records available' })
@@ -478,7 +494,15 @@ router.get('/getBussBillhistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                        if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                         res.status(200).json({ message: 'No records available' })
@@ -654,7 +678,15 @@ router.get('/ptabillhistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                        if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                         res.status(200).json({ message: 'No records available' })
@@ -833,7 +865,15 @@ router.get('/speciallevyhistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                       if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                         res.status(200).json({ message: 'No records available' })
@@ -1159,7 +1199,15 @@ router.get('/uniformsHistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                        if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                         res.status(200).json({ message: 'No records available' })
@@ -1449,7 +1497,15 @@ router.post('/leanerFeeHistory', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                          if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                     
@@ -1672,7 +1728,15 @@ router.post('/loadcanteenfeehistory_schedule', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                          if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                     
@@ -1924,7 +1988,15 @@ router.post('/load_bus_fee_history_schedule', (req, res) => {
                     return res.status(201).json({ message: error.sqlMessage })
                 } else {
                     if (results.length > 0) {
-                        console.log(results)
+                      if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                    }
+                }
                         return res.status(200).json({ data: results })
                     } else {
                     
@@ -1953,6 +2025,228 @@ router.post('/drop_bus_fee_schedule', (req, res) => {
             return;
         } else {
             query = 'DELETE FROM bus_fee_schedule WHERE AdmissionNumber=?'
+              connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+// Preparing PTA dues schedules
+// /=============================================================================================================================================================================
+// ==============================================================================================================================================================================
+// ==============================================================================================================================================================================
+
+
+
+
+router.post('/load_current_PTA_Due', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT ptabillnumber,currentBill,isCurrentbill FROM ptadues WHERE Tid=?  AND isCurrentbill=?  AND GradeID=?'
+            connection.query(query, [data.term, true, data.grade], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+// 
+// loadarrears
+router.post('/Load_PTA_Arrears', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT currentBalance FROM pta_due_payments WHERE AdmissionNumber=? AND isCurrentbillStatus=?'
+            connection.query(query, [data.AdmissionNumber, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('no records')
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+// submitcurrentbill
+
+router.post('/submit_PTA_Bill', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+             console.log('validation error')
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,currentBill,totalBill,dateposted,isCurrentbill,Department' +
+                ' FROM pta_due_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=? AND Academicgrade=? AND Department=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, data.academicyear, data.term, data.grade, data.Department, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('billed for this term')
+                        return res.status(200).json({ message: 'School fee has alreay bee prepared for this learner' })
+                    } else {
+                        query = 'SELECT  * FROM pta_due_schedule WHERE billNumber=?'
+                        connection.query(query, [data.billID], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.length > 0) {
+                                    console.log('billed for this term')
+                                    return res.status(200).json({ message: 'Duplicate bill Number. trye again' })
+                                } else {
+                                    console.log('insertion error')
+                                    query = 'INSERT INTO pta_due_schedule (billNumber,AdmissionNumber,sessionID,Tid, Academicgrade, arrears, currentBill, totalBill, dateposted, isCurrentbill,Department)VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+                                    connection.query(query, [data.billID, data.AdmissionNumber, data.academicyear, data.term, data.grade, data.arrears, data.currentFee, data.amountDue, data.dateDeposit, data.isCurrentBill, data.Department], (error, results) => {
+                                        if (error) {
+                                            console.log(error)
+                                            return res.status(201).json({ message: error.sqlMessage })
+                                        } else {
+                                            if (results.affectedRows > 0) {
+                                                return res.status(200).json({ success: 'Bill details successfully added' })
+                                            } else {
+                                                console.log('unknown error')
+                                                return res.status(201).json({ message: 'Unknown error has occured. Try again' })
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.post('/Load_PTA_Dues_History', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,currentBill,totalBill,dateposted,isCurrentbill,Department' +
+                ' FROM pta_due_schedule WHERE AdmissionNumber=?'
+            connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                      }
+                        return res.status(200).json({ data: results })
+                    } else {
+                    
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+router.post('/Drop_PTA_Due', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM pta_due_schedule WHERE AdmissionNumber=?'
               connection.query(query, [data.AdmissionNumber], (error, results) => {
                 if (error) {
                     console.log(error)
