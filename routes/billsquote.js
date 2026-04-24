@@ -2272,5 +2272,229 @@ router.post('/Drop_PTA_Due', (req, res) => {
 
 
 
+// Preparing uniform bill schedules
+// /=============================================================================================================================================================================
+// ==============================================================================================================================================================================
+// ==============================================================================================================================================================================
+
+
+
+
+router.post('/load_current_uniform_bill', (req, res) => {
+    let data = req.body
+console.log('uniform: ',data)
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT uniformbillnumber,uniformid,currentBill,isCurrentbill FROM uniformbilling WHERE Tid=?  AND isCurrentbill=?  AND GradeID=? AND uniformid=?'
+            connection.query(query, [data.term, true, data.grade,data.uniformid], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+// 
+// loadarrears
+router.post('/Load_uniform_Arrears', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT currentBalance FROM Uniform_Bill_Payments WHERE AdmissionNumber=? AND isCurrentbillStatus=? AND uniformid=?'
+            connection.query(query, [data.AdmissionNumber, true,data.uniformid], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('no records')
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+// submitcurrentbill
+
+router.post('/submit_uniform_Bill', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+             console.log('validation error')
+            query = 'SELECT billNumber,uniformid,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,currentBill,totalBill,dateposted,isCurrentbill,Department' +
+                ' FROM uniform_bill_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=? AND Academicgrade=? AND Department=? AND isCurrentbill=? AND uniformid=?'
+            connection.query(query, [data.AdmissionNumber, data.academicyear, data.term, data.grade, data.Department, true,data.uniformid], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('billed for this term')
+                        return res.status(200).json({ message: 'School fee has alreay bee prepared for this learner' })
+                    } else {
+                        query = 'SELECT  * FROM uniform_bill_schedule WHERE billNumber=?  AND uniformid=?'
+                        connection.query(query, [data.billID,data.uniformid], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.length > 0) {
+                                    console.log('billed for this term')
+                                    return res.status(200).json({ message: 'Duplicate bill Number. trye again' })
+                                } else {
+                                    console.log('insertion error')
+                                    query = 'INSERT INTO uniform_bill_schedule (billNumber,AdmissionNumber,sessionID,Tid, Academicgrade, arrears, currentBill, totalBill, dateposted, isCurrentbill,Department,uniformid)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
+                                    connection.query(query, [data.billID, data.AdmissionNumber, data.academicyear, data.term, data.grade, data.arrears, data.currentFee, data.amountDue, data.dateDeposit, data.isCurrentBill, data.Department,data.uniformid], (error, results) => {
+                                        if (error) {
+                                            console.log(error)
+                                            return res.status(201).json({ message: error.sqlMessage })
+                                        } else {
+                                            if (results.affectedRows > 0) {
+                                                return res.status(200).json({ success: 'Bill details successfully added' })
+                                            } else {
+                                                console.log('unknown error')
+                                                return res.status(201).json({ message: 'Unknown error has occured. Try again' })
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.post('/Load_uniform_Dues_History', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT uniform_bill_schedule.billNumber,uniform_bill_schedule.uniformid,uniform_bill_schedule.AdmissionNumber,uniform_bill_schedule.sessionID,uniform_bill_schedule.Tid,uniform_bill_schedule.Academicgrade,uniform_bill_schedule.arrears,uniform_bill_schedule.currentBill,uniform_bill_schedule.totalBill,uniform_bill_schedule.dateposted,uniform_bill_schedule.isCurrentbill,uniform_bill_schedule.Department, uniforms.uniformname' +
+                ' FROM uniform_bill_schedule LEFT JOIN uniforms ON uniform_bill_schedule.uniformid=uniforms.uniformid WHERE AdmissionNumber=?'
+            connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                      }
+                        return res.status(200).json({ data: results })
+                    } else {
+                    
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+router.post('/Drop_uniform_Due', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM uniform_bill_schedule WHERE AdmissionNumber=? AND uniformid=?'
+              connection.query(query, [data.AdmissionNumber,data.uniformid], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
+
 
 module.exports = router
