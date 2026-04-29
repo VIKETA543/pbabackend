@@ -2497,4 +2497,457 @@ router.post('/Drop_uniform_Due', (req, res) => {
 
 
 
+
+
+// Preparing special  levy schedules
+// /=============================================================================================================================================================================
+// ==============================================================================================================================================================================
+// ==============================================================================================================================================================================
+
+
+
+
+router.post('/load_current_special_levy', (req, res) => {
+    let data = req.body
+console.log('speciao levy: ',data)
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT lavynumber,currentBill,isCurrentbill FROM speciallevy WHERE Tid=?  AND isCurrentbill=?  AND GradeID=?'
+            connection.query(query, [data.term, true, data.grade], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('record not found')
+                        res.status(200).json({ message: 'No records available' })
+                    }
+                }
+            })
+
+
+        }
+
+
+    })
+})
+
+
+// 
+// loadarrears
+router.post('/Load_special_levy_Arrears', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT currentBalance FROM special_levy_payments WHERE AdmissionNumber=? AND isCurrentbillStatus=?'
+            connection.query(query, [data.AdmissionNumber, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log(results)
+                        return res.status(200).json({ data: results })
+                    } else {
+                        console.log('no records')
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+// submitcurrentbill
+
+router.post('/submit_special_levy', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+             console.log('validation error')
+            query = 'SELECT billNumber,AdmissionNumber,sessionID,Tid,Academicgrade,arrears,currentBill,totalBill,dateposted,isCurrentbill,Department' +
+                ' FROM special_levy_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=? AND Academicgrade=? AND Department=? AND isCurrentbill=?'
+            connection.query(query, [data.AdmissionNumber, data.academicyear, data.term, data.grade, data.Department, true], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('billed for this term')
+                        return res.status(200).json({ message: 'School fee has alreay bee prepared for this learner' })
+                    } else {
+                        query = 'SELECT  * FROM special_levy_schedule WHERE billNumber=?'
+                        connection.query(query, [data.billID], (error, results) => {
+                            if (error) {
+                                console.log(error)
+                                return res.status(201).json({ message: error.sqlMessage })
+                            } else {
+                                if (results.length > 0) {
+                                    console.log('billed for this term')
+                                    return res.status(200).json({ message: 'Duplicate bill Number. trye again' })
+                                } else {
+                                    console.log('insertion error')
+                                    query = 'INSERT INTO special_levy_schedule (billNumber,AdmissionNumber,sessionID,Tid, Academicgrade, arrears, currentBill, totalBill, dateposted, isCurrentbill,Department)VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+                                    connection.query(query, [data.billID, data.AdmissionNumber, data.academicyear, data.term, data.grade, data.arrears, data.currentFee, data.amountDue, data.dateDeposit, data.isCurrentBill, data.Department], (error, results) => {
+                                        if (error) {
+                                            console.log(error)
+                                            return res.status(201).json({ message: error.sqlMessage })
+                                        } else {
+                                            if (results.affectedRows > 0) {
+                                                return res.status(200).json({ success: 'Bill details successfully added' })
+                                            } else {
+                                                console.log('unknown error')
+                                                return res.status(201).json({ message: 'Unknown error has occured. Try again' })
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.post('/Load_special_levy_History', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'SELECT special_levy_schedule.billNumber,special_levy_schedule.AdmissionNumber,special_levy_schedule.sessionID,special_levy_schedule.Tid,special_levy_schedule.Academicgrade,special_levy_schedule.arrears,special_levy_schedule.currentBill,special_levy_schedule.totalBill,special_levy_schedule.dateposted,special_levy_schedule.isCurrentbill,special_levy_schedule.Department' +
+                ' FROM special_levy_schedule WHERE AdmissionNumber=?'
+            connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    if (results.length > 0) {
+                        console.log('results found')
+                      for(let i=0;i<results.length;i++){
+                        if(results[i].isCurrentbill===1){
+                           results[i].isCurrentbill=true 
+                        }else{
+                            results[i].isCurrentbill=false
+                        }
+                      }
+                        return res.status(200).json({ data: results })
+                    } else {
+                    
+                        return res.json({ Norecord: 'No records' })
+                    }
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+router.post('/Drop_special_levy', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    let data = req.body
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query = 'DELETE FROM special_levy_schedule WHERE AdmissionNumber=?'
+              connection.query(query, [data.AdmissionNumber], (error, results) => {
+                if (error) {
+                    console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                } else {
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+
+                        connection.release()
+                        return res.status(200).json({ success: 'Bill successfuly deleted' })
+                    } else {
+                        connection.release()
+                        return res.status(200).json({ message: 'Something went wrong. Bill could not be deleted' })
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
+// Generating bill details
+// ======================================================================================================================================================================
+// ======================================================================================================================================================================
+// ......................................................................................................................................................................
+
+
+router.post('/generatebill', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query='SELECT currentBill, arrears,totalBill FROM school_fee_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=?  AND isCurrentbill=?'
+            connection.query(query,[data.AdmissionNumber,data.academicYear,data.term,true],(error,results)=>{
+                if(error){
+                      console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                }else{
+                    if(results.length>0){
+                        console.log('fee',results)
+                        return res.status(200).json({data:results})
+                    }else{
+                        console.log('No Results')
+                        return res.status(201).json({message:'Results not found'})
+                    }
+                }
+            })
+
+
+        }
+    })
+})
+
+
+
+router.post('/loadPtaDues', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query='SELECT currentBill, arrears,totalBill FROM pta_due_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=?  AND isCurrentbill=?'
+            connection.query(query,[data.AdmissionNumber,data.academicYear,data.term,true],(error,results)=>{
+                if(error){
+                      console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                }else{
+                    if(results.length>0){
+                            console.log('pta ',results)
+                        return res.status(200).json({data:results})
+                    }else{
+                        return res.status(201).json({message:'Results not found'})
+                    }
+                }
+            })
+
+
+        }
+    })
+})
+
+
+router.post('/specialLevy', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query='SELECT currentBill, arrears,totalBill FROM special_levy_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=?  AND isCurrentbill=?'
+            connection.query(query,[data.AdmissionNumber,data.academicYear,data.term,true],(error,results)=>{
+                if(error){
+                      console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                }else{
+                    if(results.length>0){
+                            console.log('speciallevy',results)
+                        return res.status(200).json({data:results})
+                    }else{
+                        return res.status(201).json({message:'Results not found'})
+                    }
+                }
+            })
+
+
+        }
+    })
+})
+
+
+
+router.post('/uniformcost', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query='SELECT currentBill, arrears,totalBill FROM uniform_bill_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=?'
+            connection.query(query,[data.AdmissionNumber,data.academicYear,data.term],(error,results)=>{
+                if(error){
+                      console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                }else{
+                    if(results.length>0){
+                        console.log('uniforms',results)
+                        return res.status(200).json({data:results})
+                    }else{
+                        return res.status(201).json({message:'Results not found'})
+                    }
+                }
+            })
+
+
+        }
+    })
+})
+
+
+
+
+router.post('/busfee', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query='SELECT currentBill, arrears,totalBill FROM pta_due_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=?  AND isCurrentbill=?'
+            connection.query(query,[data.AdmissionNumber,data.academicYear,data.term,true],(error,results)=>{
+                if(error){
+                      console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                }else{
+                    if(results.length>0){
+                            console.log('bus',results)
+                        return res.status(200).json({data:results})
+                    }else{
+                        return res.status(201).json({message:'Results not found'})
+                    }
+                }
+            })
+
+
+        }
+    })
+})
+
+
+
+
+router.post('/Canteen', (req, res) => {
+    let data = req.body
+
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins, or specify a specific origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+    console.log(' Data', data)
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.log(err)
+            connection.release()
+            console.error('Error getting connection from pool:', err);
+            return;
+        } else {
+            query='SELECT dailyBill,number_of_days, arrears,TotalCanteenFee FROM canteen_fee_schedule WHERE AdmissionNumber=? AND sessionID=? AND Tid=?  AND isCurrentbill=?'
+            connection.query(query,[data.AdmissionNumber,data.academicYear,data.term,true],(error,results)=>{
+                if(error){
+                      console.log(error)
+                    connection.release()
+                    return res.status(201).json({ message: error.sqlMessage })
+                }else{
+                    if(results.length>0){
+                            console.log('canteen',results)
+                        return res.status(200).json({data:results})
+                    }else{
+                        return res.status(201).json({message:'Results not found'})
+                    }
+                }
+            })
+
+
+        }
+    })
+})
 module.exports = router

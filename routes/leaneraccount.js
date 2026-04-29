@@ -68,7 +68,7 @@ router.get('/academicdata', (req, res) => {
             console.error('Error getting connection from pool:', err);
             return;
         }
-        query = "SELECT academicweekslist.WeekDescription,academicterms.TermlyObject,academicsession.ac_session, termbegins.OpenedTerm FROM academicweekslist LEFT JOIN termbegins ON termbegins.WeekOpened=academicweekslist.WeekID LEFT JOIN academicterms ON termbegins.OpenedTerm=academicterms.Tid LEFT JOIN academicsession ON termbegins.AcademicYear=academicsession.sessionID WHERE termbegins.isCurrent=? "
+        query = "SELECT academicweekslist.WeekDescription,academicterms.TermlyObject,academicsession.ac_session,academicsession.sessionID, termbegins.OpenedTerm FROM academicweekslist LEFT JOIN termbegins ON termbegins.WeekOpened=academicweekslist.WeekID LEFT JOIN academicterms ON termbegins.OpenedTerm=academicterms.Tid LEFT JOIN academicsession ON termbegins.AcademicYear=academicsession.sessionID  WHERE termbegins.isCurrent=? "
         connection.query(query, [true], (error, results) => {
             if (error) {
                 console.log(error)
