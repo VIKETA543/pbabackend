@@ -12,26 +12,30 @@ const multer = require('multer');
 
 router.post('/applicationAuth', (req, res) => {
     let data = req.body
-    console.log(data)
+       console.log(data)
     query = "SELECT SerialNumber,SerialPin,SerialStatus,Authority FROM applicationserial WHERE SerialNumber=?"
     connection.query(query, [data.serialNumber], (error, results) => {
         if (error) {
+            console.log(error)    
             return res.status(500).json(error.sqlMessage)
         } else {
             let rs = results[0];
             if(results.length>0){
             console.log('testing', rs)
-            if (rs.serialnumber === data.serialNumber && rs.SerialPin === data.pinNumber && rs.SerialStatus === "SOLD") {
+         
+            if (rs.SerialNumber === data.serialNumber && rs.SerialPin === data.pinNumber && rs.SerialStatus === "SOLD") {
                 query = 'SELECT SerialStatus, ProcessStage FROM salesofapplicationserial WHERE SerialNumber=?'
                 connection.query(query, [data.serialNumber], (error, result) => {
                     if (!error) {
                         if (result.length > 0) {
-                            console.log(result[0])
+                              console.log(result[0])
                             return res.status(200).json({ progress: result[0].ProcessStage, processstatus: result[0].SerialStatus, message: "Login successful" })
                         } else {
+                            console.log("An error occured. Could not fetch progress details")
                             return res.status(401).json({ message: "An error occured. Could not fetch progress details" })
                         }
                     } else {
+                        console.log(error)
                         return res.status(500).json({ message: error.sqlMessage })
                     }
                 })
@@ -55,7 +59,7 @@ router.post('/passportPhotos', upload.single('image'), (req, res) => {
 
     const data = req.body; // Get image buffer 
     const img = req.file.buffer
-
+console.log('Image sent',data)
     query = 'SELECT SerialNumber,Image FROM passportPhotos WHERE SerialNumber=?'
     connection.query(query, [data.applicationNumber], (error, results) => {
 
@@ -63,20 +67,23 @@ router.post('/passportPhotos', upload.single('image'), (req, res) => {
             res.status(500).json({ message: error.sqlMessage });
         } else {
             if (results <= 0) {
-
+                connection.query('BEGIN')
                 query = 'INSERT INTO passportPhotos(SerialNumber,Image) VALUES (?,?)';
-
+                console.log('Adding image')
                 connection.query(query, [data.applicationNumber, img], (err, result) => {
                     if (err) {
-
+                        console.log(err)
                         res.status(500).json({ message: err.sqlMessage });
                     } else {
-                        query = 'UPDATE salesofapplicationserial SET ProcessStage=? WHERE SerialNumber'
-                        connection.query(query, [data.progress, applicationNumber], (err, result) => {
+                        query = 'UPDATE salesofapplicationserial SET SerialStatus=? ,ProcessStage=? WHERE SerialNumber'
+                        connection.query(query, ['PROCESSING', data.progress, data.applicationNumber], (err, result) => {
                             if (err) {
+                                console.log(err)
+                                connection.query('ROLLBACK')
                                 res.status(500).json({ message: err.sqlMessage });
                             } else {
-
+                                 connection.query('COMMIT')
+                                console.log('Image uploaded and stored in DB!')
                                 res.status(200).json({ message: 'Image uploaded and stored in DB!' });
                             }
                         })
@@ -86,6 +93,7 @@ router.post('/passportPhotos', upload.single('image'), (req, res) => {
                 query = "SELECT SerialStatus, SerialNumber FROM salesofapplicationserial WHERE SerialNumber=?"
                 connection.query(query, [data.applicationNumber], (error, results) => {
                     if (error) {
+                    console.log(error)
                         res.status(500).json({ message: error.sqlMessage });
                     } else {
                         console.log(results)
@@ -94,15 +102,16 @@ router.post('/passportPhotos', upload.single('image'), (req, res) => {
                             query = "UPDATE passportPhotos SET Image=?  WHERE SerialNumber=?"
                             connection.query(query, [img, data.applicationNumber], (error, results) => {
                                 if (error) {
-
+                                       console.log(error)
                                     res.status(500).json({ message: error.sqlMessage });
                                 } else {
-                                    query = 'UPDATE salesofapplicationserial SET ProcessStage=? WHERE SerialNumber=?'
-                                    connection.query(query, [data.progress, data.applicationNumber], (err, result) => {
+                                    query = 'UPDATE salesofapplicationserial SET  SerialStatus=? ,ProcessStage=? WHERE SerialNumber=?'
+                                    connection.query(query, ['PROCESSING',data.progress, data.applicationNumber], (err, result) => {
                                         if (err) {
+                                                   console.log(err)
                                             res.status(500).json({ message: err.sqlMessage });
                                         } else {
-
+                                               console.log(error)
                                             res.status(200).json({ message: 'Image uploaded and stored in DB!' });
                                         }
                                     })
@@ -110,6 +119,7 @@ router.post('/passportPhotos', upload.single('image'), (req, res) => {
 
                             })
                         } else {
+                               console.log(error)
                             res.status(500).json({ message: error.sqlMessage });
                         }
                     }
@@ -126,10 +136,15 @@ router.post('/loadPassportPicture', ((req, res) => {
         if (error) {
             res.status(401).json({ message: error.sqlMessage })
         } else {
-            var buffer = Buffer(results[0].Image);
+            if(results.length>0){
+                      var buffer = Buffer(results[0].Image);
             var BufferedBase64 = buffer.toString('base64')
 
             return res.status(200).json({ image: BufferedBase64 })
+            }else{
+                return res.status(400).json({noImage:'Add Applicant image'})
+            }
+      
 
         }
 
@@ -354,7 +369,7 @@ router.post("/applicantHealth", (req, res) => {
                         console.log(error)
                         return res.status(500).json({ message: error.sqlMessage })
                     } else {
-                        if (results.length > 0) {
+                        if (results.affectedRows > 0) {
 
                             query = 'UPDATE salesofapplicationserial SET ProcessStage=? WHERE SerialNumber=?'
                             connection.query(query, [data.progress, data.applicationNumber], (err, result) => {
@@ -507,11 +522,13 @@ router.post('/consentData', (req, res) => {
                 data.familyDocterContact1, data.familyDocterContact2, data.familyDocterContact3, data.callSchoolDoctor, data.callAmbulanceService, data.sendchildtoHospital, data.payallMedicalExpense, data.declaration
                 ], (error, results) => {
                     if (error) {
+                        console.log(error)
                         res.status(500).json({ message: error.sqlMessage })
                     } else {
                         query = 'UPDATE salesofapplicationserial SET ProcessStage=? WHERE SerialNumber=?'
                         connection.query(query, [data.progress, data.applicationNumber], (err, result) => {
                             if (err) {
+                                console.log(error)
                                 res.status(500).json({ message: err.sqlMessage });
                             } else {
 
@@ -528,6 +545,7 @@ router.post('/consentData', (req, res) => {
                 query = "SELECT SerialStatus, SerialNumber FROM salesofapplicationserial WHERE SerialNumber=?"
                 connection.query(query, [data.applicationNumber], (error, results) => {
                     if (error) {
+                        console.log(error)
                         return res.status(500).json({ message: error.sqlMessage })
                     } else {
                         if (results <= 0) {
@@ -784,6 +802,7 @@ router.post('/loadfinalStage', (req, res) => {
             return res.json({message:error.sqlMessage})
         }else{
             if(results.length>0){
+                console.log(results)
                 return res.status(200).json({
                     applicationNumber:results[0].applicationNumber,
                     sname: results[0].applicantSurname,
@@ -858,6 +877,7 @@ router.post('/loadfinalStage', (req, res) => {
                     declara: results[0].declaration
                 })
             }else{
+                console.log('Internal error occured. Records could not be loaded')
                 res.status(500).json({message:"Internal error occured. Records could not be loaded"})
             }
         }

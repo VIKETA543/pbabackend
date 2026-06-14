@@ -7,6 +7,7 @@ const admissions = require('./routes/admissions');
 const Academics = require('./routes/academics');
 const Learneraccount = require('./routes/leaneraccount')
 const Billsquote=require('./routes/billsquote')
+const Account=require('./routes/account')
 
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/admissions', admissions)
 app.use('/academics', Academics)
 app.use('/leaneraccount',Learneraccount)
 app.use('/billsquote',Billsquote)
+app.use('/account',Account)
 
 
 module.exports = app;

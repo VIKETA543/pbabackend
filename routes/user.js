@@ -131,7 +131,7 @@ router.post('/forgotpassword', (req, res) => {
         connection.query(query, [user.email], (err, results) => {
             if (!err) {
                 if (results.length <= 0) {
-                    return res.status(200).json({ message: 'Password sent successfully to your email' })
+                    return res.status(200).json({ message: 'Email does not exist' })
                 } else {
                     //   console.log(process.env.EMAIL)
                     //   console.log(process.env.PASSWORD)
@@ -139,7 +139,7 @@ router.post('/forgotpassword', (req, res) => {
                         from: process.env.EMAIL,
                         to: results[0].email,
                         subject: 'Password by BHA',
-                        html: '<p><b>Your Login details for BHA account is<br><b>Email:</b>' + results[0].email + '</b><br><b>Password:</b>' + results[0].Password + '<br><a href="http://localhost:4200/">click here to login</a></p>'
+                        html: '<p><b>Your Login details for Divine Academy account is<br><b>Email:</b>' + results[0].email + '</b><br><b>Password:</b>' + results[0].Password + '<br><a href="http://localhost:4200/">click here to login</a></p>'
                     };
                     transporter.sendMail(mailoptions, function (error, info) {
                         if (error) {
